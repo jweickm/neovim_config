@@ -50,7 +50,6 @@ Plug 'psliwka/vim-smoothie'
 
 " Distraction-free writing in Vim
 Plug 'junegunn/goyo.vim'
-Plug 'preservim/vim-pencil'
 
 call plug#end()
 " }}}
@@ -80,12 +79,6 @@ set incsearch
 
 set history=1000
 
-" belongs to the pencil plugin
-augroup pencil
-  autocmd!
-  autocmd FileType markdown,mkd call pencil#init()
-  autocmd FileType text         call pencil#init()
-augroup END
 " }}}
 
 " MAPPINGS ----------------------------------------- {{{
