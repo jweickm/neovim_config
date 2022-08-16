@@ -21,8 +21,6 @@ Plug 'ap/vim-css-color', Cond(!exists('g:vscode'))
 " COLORSCHEMES
 " Plug 'luisiacc/gruvbox-baby', {'branch': 'main'}
 Plug 'rafi/awesome-vim-colorschemes', Cond(!exists('g:vscode'))
-" Catppuccin theme for nvim
-Plug 'catppuccin/nvim', {'as': 'catppuccin'}
 
 " Git Plugins
 Plug 'airblade/vim-gitgutter', Cond(!exists('g:vscode'))
@@ -46,10 +44,9 @@ Plug 'jiangmiao/auto-pairs', Cond(!exists('g:vscode'))
 " Make Easymotion work with dot repeat
 Plug 'tpope/vim-repeat', Cond(!exists('g:vscode'))
 " Modern implementation of easymotion for neovim
-" Plug 'phaazon/hop.nvim', Cond(!exists('g:vscode'))
-Plug 'phaazon/hop.nvim'
+Plug 'phaazon/hop.nvim', Cond(!exists('g:vscode'))
 " use the following plugin when in vscode
-" Plug 'asvetliakov/vim-easymotion', Cond(exists('g:vscode'), { 'as': 'vsc-easymotion' })
+Plug 'asvetliakov/vim-easymotion', Cond(exists('g:vscode'), { 'as': 'vsc-easymotion' })
 
 
 " Better registers
@@ -73,18 +70,9 @@ Plug 'psliwka/vim-smoothie', Cond(!exists('g:vscode'))
 
 " Distraction-free writing in Vim
 Plug 'junegunn/goyo.vim', Cond(!exists('g:vscode'))
-Plug 'preservim/vim-pencil', Cond(!exists('g:vscode'))
 
 " GhostText plugin to use nvim in the browser
-Plug 'raghur/vim-ghost', {'do': ':GhostInstall'}
-
-" Board plugin to take quick notes
-" Plug 'azabiong/vim-board', Cond(!exists('g:vscode'))
-" Vimwiki
-Plug 'vimwiki/vimwiki', Cond(!exists('g:vscode'))
-
-" Thunderbird NVIM Plugin
-" Plug 'glacambre/firenvim', { 'do': { _ -> firenvim#install(0) } }
+Plug 'subnut/nvim-ghost.nvim', {'do': ':call nvim_ghost#installer#install()'}
 
 call plug#end()
 " }}}
@@ -96,7 +84,7 @@ if exists('g:vscode')
     set smartcase
     set incsearch
 else
-    set relativenumber number
+    set relativenumber
     filetype plugin indent on
 
     set autoindent
@@ -105,7 +93,6 @@ else
     set smarttab
     set softtabstop=4
     set expandtab
-    set linebreak
     syntax on
 
     set mouse=a
@@ -124,57 +111,37 @@ endif
 " }}}
 
 " MAPPINGS ----------------------------------------- {{{
-" keybinds
 " Set the space as the leader key. Must be set before other leader key combos!
-" let mapleader = " "
-
-" HOP EASYMOTION
-" setup and use colemak keys
-lua require'hop'.setup { keys = 'arstdwfpluyhneio', jump_on_sole_occurence = true }
-map <Space>f :HopChar1<CR>
-map <Space>s :HopChar2<CR>
-map <Space>w :HopWord<CR>
-map <Space>l :HopLine<CR>
-map <Space>h :HopLineStart<CR>
-map <Space>t :HopChar1CurrentLineAC<CR>
-map <Space>n :HopChar2CurrentLineAC<CR>
-map <Space>e :HopWordCurrentLineAC<CR>
-" map <Leader>f :HopChar1<CR>
-" map <Leader>s :HopChar2<CR>
-" map <Leader>w :HopWord<CR>
-" map <Leader>l :HopLine<CR>
-" map <Leader>h :HopLineStart<CR>
-" map <Leader>t :HopChar1CurrentLineAC<CR>
-" map <Leader>n :HopChar2CurrentLineAC<CR>
-" map <Leader>e :HopWordCurrentLineAC<CR>
-
-nmap <Down> gj
-vmap <Down> gj
-nmap <Up> gk
-vmap <Up> gk
-imap <Down> <C-o>gj
-imap <Up> <C-o>gk
-
-" copy the contents of the entire buffer to system clipboard
-nmap gca ggVG"+y
-" copy selection to the system clipboard
-vmap gy "+y
+let mapleader = " "
 
 if exists('g:vscode')
+     " Map easymotion to only leader (after setting the mapleader!)
+     map <Leader> <Plug>(easymotion-prefix)
+     map <Leader>f <Plug>(easymotion-f)
+     map <Leader>F <Plug>(easymotion-F)
+     map <Leader>l <Plug>(easymotion-bd-jk)
+     " Move to word
+     map  <Leader>w <Plug>(easymotion-bd-w)
+     " Move two chars
+     nmap <Leader>s <Plug>(easymotion-bd-f2)
+    
+     "WHICH KEY VSCODE
+     nmap <silent> <Enter> :call VSCodeNotify('whichkey.show')<CR>
+
+     nmap <Down> gj
+     vmap <Down> gj
+     nmap <Up> gk
+     vmap <Up> gk
 
 else 
-
-    " display the current full path of the file
-    noremap <C-g><C-g> 1<C-g>
-
-    " pull the path of the current file into the clipboard
-    noremap <C-p> :let @+ = expand("%:p:h")<CR>:pwd<CR>
-
-    " traverse the buffer list (taken from Practical Vim)
-    nnoremap <silent> [b :bprevious<CR>
-    nnoremap <silent> ]b :bnext<CR>
-    nnoremap <silent> [B :bfirst<CR>
-    nnoremap <silent> ]B :blast<CR>
+    " HOP EASYMOTION
+    " setup and use colemak keys
+    lua require'hop'.setup { keys = 'arstdwfpluyhneio', jump_on_sole_occurence = true }
+    map <Leader>f :HopChar1<CR>
+    map <Leader>s :HopChar2<CR>
+    map <Leader>w :HopWord<CR>
+    map <Leader>l :HopLine<CR>
+    map <Leader>h :HopLineStart<CR>
 
     " open nerdtree with F1
     nnoremap <F1> :NERDTreeToggle<CR>
@@ -220,6 +187,16 @@ else
     " Disable AutoPairsMultilineClose
     let g:AutoPairsMultilineClose = 0
 
+    " nnoremap j gj
+    " vnoremap j gj
+    " nnoremap k gk
+    " vnoremap k gk
+     nmap <Down> gj
+     vmap <Down> gj
+     nmap <Up> gk
+     vmap <Up> gk
+
+
 endif
 
 " Yank from cursor to the end of line.
@@ -239,14 +216,6 @@ nnoremap Y y$
 " Use the marker method of folding.
 if exists('g:vscode')
 
-" This function is from Practical Vim, but taken from https://github.com/stoeffel/.dotfiles/blob/master/vim/visual-at.vim
-" it allows pressing @ to execute a macro over all lines in the visual selection
-xnoremap @ :<C-u>call ExecuteMacroOverVisualRange()<CR>
-function! ExecuteMacroOverVisualRange()
-  echo "@".getcmdline()
-  execute ":'<,'>normal @".nr2char(getchar())
-endfunction
-
 else 
     augroup filetype_vim
         autocmd!
@@ -260,22 +229,6 @@ augroup vimrc-incsearch-highlight
   autocmd CmdlineLeave /,\? :set nohlsearch
 augroup END
 
-" Call the writing plugin 'pencil', when editing markdown files
-let g:pencil#wrapModeDefault = 'soft'
-let g:pencil#conceallevel = 0     " 0=disable, 1=one char, 2=hide char, 3=hide all (def)
-augroup pencil
-  autocmd!
-  autocmd FileType markdown,mkd,md  call pencil#init()
-  autocmd FileType text             call pencil#init()
-augroup END
-
-" This function is from Practical Vim, but taken from https://github.com/stoeffel/.dotfiles/blob/master/vim/visual-at.vim
-" it allows pressing @ to execute a macro over all lines in the visual selection
-xnoremap @ :<C-u>call ExecuteMacroOverVisualRange()<CR>
-function! ExecuteMacroOverVisualRange()
-  echo "@".getcmdline()
-  execute ":'<,'>normal @".nr2char(getchar())
-endfunction
 " }}}
 
 " STATUS LINE -------------------------------------- {{{
