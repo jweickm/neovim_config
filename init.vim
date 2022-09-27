@@ -11,7 +11,6 @@ call plug#begin(stdpath('config') . '/plugged')
 " Aesthetics - Status Line
 Plug 'itchyny/lightline.vim', Cond(!exists('g:vscode'))
 " Plug 'vim-airline/vim-airline'
-
 " Aesthetics - Additional
 " Fancy Startpage for vim
 Plug 'mhinz/vim-startify', Cond(!exists('g:vscode'))
@@ -19,10 +18,8 @@ Plug 'mhinz/vim-startify', Cond(!exists('g:vscode'))
 Plug 'ap/vim-css-color', Cond(!exists('g:vscode'))
 
 " COLORSCHEMES
-" Plug 'luisiacc/gruvbox-baby', {'branch': 'main'}
 Plug 'rafi/awesome-vim-colorschemes', Cond(!exists('g:vscode'))
-" Catppuccin theme for nvim
-Plug 'catppuccin/nvim', {'as': 'catppuccin'}
+Plug 'joshdick/onedark.vim', Cond(!exists('g:vscode'))
 
 " Git Plugins
 Plug 'airblade/vim-gitgutter', Cond(!exists('g:vscode'))
@@ -39,18 +36,19 @@ Plug 'ryanoasis/vim-devicons'
 Plug 'tpope/vim-commentary'
 " Surround stuff with ys
 Plug 'tpope/vim-surround'
+" Allow easy incremental increasing and decreasing of dates
+Plug 'tpope/vim-speeddating'
+" Repeat plugin calls
+Plug 'tpope/vim-repeat'
 " Auto pair the brackets
 Plug 'jiangmiao/auto-pairs', Cond(!exists('g:vscode'))
 
 " Easymotion plug
-" Make Easymotion work with dot repeat
-Plug 'tpope/vim-repeat', Cond(!exists('g:vscode'))
 " Modern implementation of easymotion for neovim
 " Plug 'phaazon/hop.nvim', Cond(!exists('g:vscode'))
 Plug 'phaazon/hop.nvim'
 " use the following plugin when in vscode
 " Plug 'asvetliakov/vim-easymotion', Cond(exists('g:vscode'), { 'as': 'vsc-easymotion' })
-
 
 " Better registers
 Plug 'junegunn/vim-peekaboo', Cond(!exists('g:vscode'))
@@ -69,37 +67,44 @@ Plug 'nvim-lua/plenary.nvim', Cond(!exists('g:vscode')) " required dependency
 Plug 'nvim-telescope/telescope.nvim', Cond(!exists('g:vscode'))
 
 " Smooth Scrolling
-Plug 'psliwka/vim-smoothie', Cond(!exists('g:vscode'))
+if !exists('g:neovide') && !exists('g:vscode') 
+    Plug 'psliwka/vim-smoothie'
+endif
 
-" Distraction-free writing in Vim
+" Distraction-free writing in Vim for Markdown
 Plug 'junegunn/goyo.vim', Cond(!exists('g:vscode'))
 Plug 'preservim/vim-pencil', Cond(!exists('g:vscode'))
+Plug 'dkarter/bullets.vim', Cond(!exists('g:vscode'))
+Plug 'preservim/vim-markdown', Cond(!exists('g:vscode'))
 
 " GhostText plugin to use nvim in the browser
-Plug 'raghur/vim-ghost', {'do': ':GhostInstall'}
+" Plug 'raghur/vim-ghost', {'do': ':GhostInstall'}
 
-" Board plugin to take quick notes
-" Plug 'azabiong/vim-board', Cond(!exists('g:vscode'))
-" Vimwiki
-Plug 'vimwiki/vimwiki', Cond(!exists('g:vscode'))
+" Vimwiki for Zettelkasten
+" Plug 'vimwiki/vimwiki', Cond(!exists('g:vscode'))
+" Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
+" Plug 'junegunn/fzf.vim'
+" Plug 'michal-h21/vim-zettel'
 
-" Thunderbird NVIM Plugin
-" Plug 'glacambre/firenvim', { 'do': { _ -> firenvim#install(0) } }
+" Zettelkasten-Plugin
+" Plug 'Furkanzmc/zettelkasten.nvim'
 
 call plug#end()
 " }}}
 
 " SETTINGS ----------------------------------------- {{{
-if exists('g:vscode')
-    set showmatch
-    set ignorecase
-    set smartcase
-    set incsearch
-else
+" set noshowmode "hides -- INSERT -- as it's already shown in lightline
+set showmatch
+set ignorecase
+set smartcase
+set incsearch
+if !exists('g:vscode')
+    set termguicolors
     set relativenumber number
     filetype plugin indent on
 
     set autoindent
+    set briopt+=list:-1 " for hanging indents
     set tabstop=4
     set shiftwidth=4
     set smarttab
@@ -114,11 +119,6 @@ else
     set wildmenu
 
     " Search 
-    set showmatch
-    set ignorecase
-    set smartcase
-    set incsearch
-
     set history=1000
 endif
 " }}}
@@ -126,7 +126,15 @@ endif
 " MAPPINGS ----------------------------------------- {{{
 " keybinds
 " Set the space as the leader key. Must be set before other leader key combos!
-" let mapleader = " "
+let mapleader = " "
+
+" Mappings for Neovide
+if exists("g:neovide")
+    let g:neovide_fullscreen=v:true
+    inoremap <C-BS> <C-w>
+    inoremap <C-H> <C-w>
+    map <F11> :let g:neovide_fullscreen =! neovide_fullscreen<CR>
+endif
 
 " HOP EASYMOTION
 " setup and use colemak keys
@@ -149,20 +157,27 @@ map <Space>e :HopWordCurrentLineAC<CR>
 " map <Leader>e :HopWordCurrentLineAC<CR>
 
 nmap <Down> gj
-vmap <Down> gj
 nmap <Up> gk
+vmap <Down> gj
 vmap <Up> gk
-imap <Down> <C-o>gj
 imap <Up> <C-o>gk
+imap <Down> <C-o>gj
 
 " copy the contents of the entire buffer to system clipboard
-nmap gca ggVG"+y
+nnoremap gca ggVG"+y
 " copy selection to the system clipboard
-vmap gy "+y
+vnoremap gy "+y
+" create a markdown link from the clipboard around the current word (uses
+" vim_surround)
+nmap gl ysiw]f]a(<C-r>+)<Esc>
 
-if exists('g:vscode')
+if !exists('g:vscode')
 
-else 
+    " delete previous word
+    " noremap! <C-BS> <C-w>
+    " noremap! <C-h> <C-w>
+    " delete ahead
+    inoremap <C-Del> <C-o>de
 
     " display the current full path of the file
     noremap <C-g><C-g> 1<C-g>
@@ -181,6 +196,8 @@ else
     " Have nerdtree ignore certain files and directories.
     let NERDTreeIgnore=['\.git$', '\.jpg$', '\.mp4$', '\.ogg$', '\.iso$', '\.pdf$', '\.pyc$', '\.odt$', '\.png$', '\.gif$', '\.db$']
 
+    " Set the location of Tagbar
+    " let g:tagbar_ctags_bin = 'C:\Users\jakob\AppData\Local\ctags\ctags.exe'
     " Open the Tagbar with F8
     nmap <F8> :TagbarToggle<CR>
 
@@ -228,8 +245,13 @@ nnoremap Y y$
 " }}}
 
 " COLORSCHEMES ------------------------------------- {{{
-" let g:gruvbox_baby_transparent_mode = 1 
-" colorscheme gruvbox-baby
+let g:onedark_hide_endofbuffer=1
+" let g:onedark_termcolors=256
+let g:onedark_terminal_italics=1
+let g:lightline = {
+            \ 'colorscheme': 'onedark'
+            \ }
+colorscheme onedark
 "
 
 " }}}
@@ -237,37 +259,45 @@ nnoremap Y y$
 " VIMSCRIPT ---------------------------------------- {{{
 " This will enable code folding.
 " Use the marker method of folding.
-if exists('g:vscode')
+if !exists('g:vscode')
 
-" This function is from Practical Vim, but taken from https://github.com/stoeffel/.dotfiles/blob/master/vim/visual-at.vim
-" it allows pressing @ to execute a macro over all lines in the visual selection
-xnoremap @ :<C-u>call ExecuteMacroOverVisualRange()<CR>
-function! ExecuteMacroOverVisualRange()
-  echo "@".getcmdline()
-  execute ":'<,'>normal @".nr2char(getchar())
-endfunction
-
-else 
     augroup filetype_vim
         autocmd!
         autocmd FileType vim setlocal foldmethod=marker
     augroup END
+
+    augroup vimrc-incsearch-highlight
+      autocmd!
+      autocmd CmdlineEnter /,\? :set hlsearch
+      autocmd CmdlineLeave /,\? :set nohlsearch
+    augroup END
+
+    " Call the writing plugin 'pencil', when editing markdown files
+    let g:pencil#wrapModeDefault = 'soft'
+    let g:pencil#conceallevel = 0     " 0=disable, 1=one char, 2=hide char, 3=hide all (def)
+    augroup pencil
+      autocmd!
+      autocmd FileType markdown,mkd,md  call pencil#init()
+      autocmd FileType text             call pencil#init()
+    augroup END
+
+    " Bullets.vim
+    let g:bullets_enabled_file_types = [
+        \ 'markdown',
+        \ 'text',
+        \ 'gitcommit',
+        \ 'scratch'
+        \]
+
+    " setup for zettelkasten.nvim
+    " lua require'zettelkasten'.setup { notes_path = 'C:\\Users\\jakob\\OneDrive\\_ZETTELKASTEN' }
+    " setup of vim-zettel
+    " let g:nv_search_paths = ['C:\\Users\\jakob\\OneDrive\\_ZETTELKASTEN']
+    " setup of vimwiki
+    " let g:vimwiki_conceallevel = 0
+    let g:vim_markdown_conceal = 0
+
 endif
-
-augroup vimrc-incsearch-highlight
-  autocmd!
-  autocmd CmdlineEnter /,\? :set hlsearch
-  autocmd CmdlineLeave /,\? :set nohlsearch
-augroup END
-
-" Call the writing plugin 'pencil', when editing markdown files
-let g:pencil#wrapModeDefault = 'soft'
-let g:pencil#conceallevel = 0     " 0=disable, 1=one char, 2=hide char, 3=hide all (def)
-augroup pencil
-  autocmd!
-  autocmd FileType markdown,mkd,md  call pencil#init()
-  autocmd FileType text             call pencil#init()
-augroup END
 
 " This function is from Practical Vim, but taken from https://github.com/stoeffel/.dotfiles/blob/master/vim/visual-at.vim
 " it allows pressing @ to execute a macro over all lines in the visual selection
