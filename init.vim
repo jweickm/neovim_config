@@ -67,9 +67,7 @@ Plug 'nvim-lua/plenary.nvim', Cond(!exists('g:vscode')) " required dependency
 Plug 'nvim-telescope/telescope.nvim', Cond(!exists('g:vscode'))
 
 " Smooth Scrolling
-if !exists('g:neovide') && !exists('g:vscode') 
-    Plug 'psliwka/vim-smoothie'
-endif
+Plug 'psliwka/vim-smoothie', Cond(!exists('g:vscode'))
 
 " Distraction-free writing in Vim for Markdown
 Plug 'junegunn/goyo.vim', Cond(!exists('g:vscode'))
@@ -104,7 +102,7 @@ if !exists('g:vscode')
     filetype plugin indent on
 
     set autoindent
-    set briopt+=list:-1 " for hanging indents
+    set breakindentopt+=list:-1 " for hanging indents
     set tabstop=4
     set shiftwidth=4
     set smarttab
@@ -130,10 +128,12 @@ let mapleader = " "
 
 " Mappings for Neovide
 if exists("g:neovide")
-    let g:neovide_fullscreen=v:true
+    " let g:neovide_fullscreen=v:true
     inoremap <C-BS> <C-w>
     inoremap <C-H> <C-w>
     map <F11> :let g:neovide_fullscreen =! neovide_fullscreen<CR>
+    " set the font family and size for Neovide
+    set guifont=Sarasa\ Fixed\ J\ Nerd\ Font:h12
 endif
 
 " HOP EASYMOTION
@@ -183,7 +183,10 @@ if !exists('g:vscode')
     noremap <C-g><C-g> 1<C-g>
 
     " pull the path of the current file into the clipboard
-    noremap <C-p> :let @+ = expand("%:p:h")<CR>:pwd<CR>
+    noremap <C-p>y :let @+ = expand("%:p:h")<CR>:pwd<CR>
+
+    " change the working directory to the current file location
+    noremap <C-p>c :cd %:p:h<CR>:pwd<CR>
 
     " traverse the buffer list (taken from Practical Vim)
     nnoremap <silent> [b :bprevious<CR>
@@ -197,7 +200,7 @@ if !exists('g:vscode')
     let NERDTreeIgnore=['\.git$', '\.jpg$', '\.mp4$', '\.ogg$', '\.iso$', '\.pdf$', '\.pyc$', '\.odt$', '\.png$', '\.gif$', '\.db$']
 
     " Set the location of Tagbar
-    " let g:tagbar_ctags_bin = 'C:\Users\jakob\AppData\Local\ctags\ctags.exe'
+    let g:tagbar_ctags_bin = 'C:\Users\jakob\AppData\Local\ctags\ctags.exe'
     " Open the Tagbar with F8
     nmap <F8> :TagbarToggle<CR>
 
@@ -234,9 +237,8 @@ if !exists('g:vscode')
     nnoremap <a-h> <c-w>h
     nnoremap <a-l> <c-w>l
 
-    " Disable AutoPairsMultilineClose
-    let g:AutoPairsMultilineClose = 0
-
+    " Disable the ge command override from vim-markdown
+    map <Plug> <Plug>Markdown_EditUrlUnderCursor
 endif
 
 " Yank from cursor to the end of line.
@@ -261,6 +263,10 @@ colorscheme onedark
 " Use the marker method of folding.
 if !exists('g:vscode')
 
+    " Disable AutoPairsMultilineClose
+    let g:AutoPairsMultilineClose = 0
+
+
     augroup filetype_vim
         autocmd!
         autocmd FileType vim setlocal foldmethod=marker
@@ -281,13 +287,15 @@ if !exists('g:vscode')
       autocmd FileType text             call pencil#init()
     augroup END
 
-    " Bullets.vim
+    " " Bullets.vim
     let g:bullets_enabled_file_types = [
         \ 'markdown',
+        \ 'md',
         \ 'text',
         \ 'gitcommit',
         \ 'scratch'
         \]
+    let g:bullets_enable_in_empty_buffers = 1
 
     " setup for zettelkasten.nvim
     " lua require'zettelkasten'.setup { notes_path = 'C:\\Users\\jakob\\OneDrive\\_ZETTELKASTEN' }
@@ -295,7 +303,11 @@ if !exists('g:vscode')
     " let g:nv_search_paths = ['C:\\Users\\jakob\\OneDrive\\_ZETTELKASTEN']
     " setup of vimwiki
     " let g:vimwiki_conceallevel = 0
+
+    " Change the level for syntax concealment (2 per default)
     let g:vim_markdown_conceal = 0
+    let g:vim_markdown_folding_disabled = 1
+    let g:vim_markdown_folding_level = 2
 
 endif
 
