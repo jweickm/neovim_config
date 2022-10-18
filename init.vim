@@ -38,7 +38,7 @@ Plug 'tpope/vim-commentary'
 Plug 'tpope/vim-surround'
 " Allow easy incremental increasing and decreasing of dates
 Plug 'tpope/vim-speeddating'
-" Repeat plugin calls
+" Repeat plugin calls (works great with vim-surround)
 Plug 'tpope/vim-repeat'
 " Auto pair the brackets
 Plug 'jiangmiao/auto-pairs', Cond(!exists('g:vscode'))
@@ -75,9 +75,6 @@ Plug 'preservim/vim-pencil', Cond(!exists('g:vscode'))
 Plug 'dkarter/bullets.vim', Cond(!exists('g:vscode'))
 Plug 'preservim/vim-markdown', Cond(!exists('g:vscode'))
 
-" GhostText plugin to use nvim in the browser
-" Plug 'raghur/vim-ghost', {'do': ':GhostInstall'}
-
 " Vimwiki for Zettelkasten
 " Plug 'vimwiki/vimwiki', Cond(!exists('g:vscode'))
 " Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
@@ -86,6 +83,10 @@ Plug 'preservim/vim-markdown', Cond(!exists('g:vscode'))
 
 " Zettelkasten-Plugin
 " Plug 'Furkanzmc/zettelkasten.nvim'
+if exists('g:neovide')
+" GhostText plugin to use nvim in the browser
+Plug 'subnut/nvim-ghost.nvim', {'do': ':call nvim_ghost#installer#install()'}
+endif
 
 call plug#end()
 " }}}
@@ -112,7 +113,7 @@ if !exists('g:vscode')
     syntax on
 
     set mouse=a
-    set scrolloff=20
+    set scrolloff=10
     set showcmd " show command in status line
     set wildmenu
 
@@ -129,12 +130,36 @@ let mapleader = " "
 " Mappings for Neovide
 if exists("g:neovide")
     " let g:neovide_fullscreen=v:true
+    " delete previous word
     inoremap <C-BS> <C-w>
+    " delete next word
     inoremap <C-H> <C-w>
     map <F11> :let g:neovide_fullscreen =! neovide_fullscreen<CR>
     " set the font family and size for Neovide
-    set guifont=Sarasa\ Fixed\ J\ Nerd\ Font:h12
+    set guifont=Sarasa\ Term\ J\ Nerd\ Font:h12
+    " undo from insert mode
+    inoremap <C-z> <C-o>u 
+    " redo from insert mode
+    inoremap <C-y> <C-o><C-r> 
+
+    " allow pasting from and copying to the system clipboard with <S-Insert> and <C-Insert>
+    " copy the visual selection
+    vnoremap <C-Insert> "+y
+    vnoremap <C-x> "+d
+    " paste from the system clipboard
+    inoremap <S-Insert> <C-o>"+p
+    nnoremap <S-Insert> "+p
 endif
+
+" create undo points for better prose writing
+inoremap ! !<C-g>u
+inoremap , ,<C-g>u
+inoremap . .<C-g>u
+inoremap : :<C-g>u
+inoremap ; ;<C-g>u
+inoremap ? ?<C-g>u
+inoremap ( <C-g>u(
+inoremap ) )<C-g>u
 
 " HOP EASYMOTION
 " setup and use colemak keys
@@ -173,9 +198,6 @@ nmap gl ysiw]f]a(<C-r>+)<Esc>
 
 if !exists('g:vscode')
 
-    " delete previous word
-    " noremap! <C-BS> <C-w>
-    " noremap! <C-h> <C-w>
     " delete ahead
     inoremap <C-Del> <C-o>de
 
@@ -239,6 +261,11 @@ if !exists('g:vscode')
 
     " Disable the ge command override from vim-markdown
     map <Plug> <Plug>Markdown_EditUrlUnderCursor
+
+    " Save with Ctrl-S
+    nnoremap <C-s> :w<CR>
+    inoremap <C-s> <C-o>:w<CR>
+
 endif
 
 " Yank from cursor to the end of line.
@@ -266,6 +293,9 @@ if !exists('g:vscode')
     " Disable AutoPairsMultilineClose
     let g:AutoPairsMultilineClose = 0
 
+    " Automatically recognize markdown files
+    autocmd BufNewFile,BufFilePre,BufRead *.md set filetype=markdown
+    autocmd BufNewFile,BufFilePre,BufRead *.md set syntax=markdown
 
     augroup filetype_vim
         autocmd!
