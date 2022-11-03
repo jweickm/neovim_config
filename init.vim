@@ -46,9 +46,12 @@ Plug 'jiangmiao/auto-pairs', Cond(!exists('g:vscode'))
 " Easymotion plug
 " Modern implementation of easymotion for neovim
 " Plug 'phaazon/hop.nvim', Cond(!exists('g:vscode'))
-Plug 'phaazon/hop.nvim'
+" Plug 'phaazon/hop.nvim'
 " use the following plugin when in vscode
 " Plug 'asvetliakov/vim-easymotion', Cond(exists('g:vscode'), { 'as': 'vsc-easymotion' })
+" Vim-Leap instead of hop
+Plug 'ggandor/leap.nvim'
+
 
 " Better registers
 Plug 'junegunn/vim-peekaboo', Cond(!exists('g:vscode'))
@@ -97,6 +100,7 @@ set showmatch
 set ignorecase
 set smartcase
 set incsearch
+set autochdir
 if !exists('g:vscode')
     set termguicolors
     set relativenumber number
@@ -161,17 +165,21 @@ inoremap ? ?<C-g>u
 inoremap ( <C-g>u(
 inoremap ) )<C-g>u
 
+" leap.nvim
+lua require('leap').add_default_mappings()
+
 " HOP EASYMOTION
 " setup and use colemak keys
-lua require'hop'.setup { keys = 'arstdwfpluyhneio', jump_on_sole_occurence = true }
-map <Space>f :HopChar1<CR>
-map <Space>s :HopChar2<CR>
-map <Space>w :HopWord<CR>
-map <Space>l :HopLine<CR>
-map <Space>h :HopLineStart<CR>
-map <Space>t :HopChar1CurrentLineAC<CR>
-map <Space>n :HopChar2CurrentLineAC<CR>
-map <Space>e :HopWordCurrentLineAC<CR>
+" lua require'hop'.setup { keys = 'arstdwfpluyhneio', jump_on_sole_occurence = true }
+" map <Space>f :HopChar1<CR>
+" map <Space>s :HopChar2<CR>
+" map <Space>w :HopWord<CR>
+" map <Space>l :HopLine<CR>
+" map <Space>h :HopLineStart<CR>
+" map <Space>t :HopChar1CurrentLineAC<CR>
+" map <Space>n :HopChar2CurrentLineAC<CR>
+" map <Space>e :HopWordCurrentLineAC<CR>
+
 " map <Leader>f :HopChar1<CR>
 " map <Leader>s :HopChar2<CR>
 " map <Leader>w :HopWord<CR>
@@ -192,6 +200,11 @@ imap <Down> <C-o>gj
 nnoremap gca ggVG"+y
 " copy selection to the system clipboard
 vnoremap gy "+y
+" past from the system clipboard
+vnoremap gp "+p
+vnoremap gP "+P
+nnoremap gp "+p
+nnoremap gP "+P
 " create a markdown link from the clipboard around the current word (uses
 " vim_surround)
 nmap gl ysiw]f]a(<C-r>+)<Esc>
